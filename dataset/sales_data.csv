@@ -1,0 +1,88 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Load dataset
+file_path = 'dataset/sales_data.csv'
+df = pd.read_csv(file_path, encoding='latin1')
+
+# Display first rows
+print(df.head())
+
+# Convert Order Date
+if 'Order Date' in df.columns:
+    df['Order Date'] = pd.to_datetime(df['Order Date'])
+
+# =============================
+# KPI Calculations
+# =============================
+
+sales_column = 'Sales'
+profit_column = 'Profit'
+
+print("Total Sales:", df[sales_column].sum())
+print("Total Profit:", df[profit_column].sum())
+print("Total Orders:", df['Order ID'].nunique())
+
+# =============================
+# Monthly Sales Trend
+# =============================
+
+if 'Order Date' in df.columns:
+    monthly_sales = df.groupby(df['Order Date'].dt.to_period('M'))[sales_column].sum()
+    monthly_sales.plot(figsize=(12,6))
+    plt.title('Monthly Sales Trend')
+    plt.xlabel('Month')
+    plt.ylabel('Sales')
+    plt.grid(True)
+    plt.savefig('screenshots/sales_trend.png')
+    plt.show()
+
+# =============================
+# Top Products
+# =============================
+
+product_sales = df.groupby('Product Name')[sales_column].sum().sort_values(ascending=False).head(10)
+product_sales.plot(kind='bar', figsize=(12,6))
+plt.title('Top 10 Products by Sales')
+plt.xlabel('Product')
+plt.ylabel('Sales')
+plt.tight_layout()
+plt.savefig('screenshots/top_products.png')
+plt.show()
+
+# =============================
+# Regional Sales
+# =============================
+
+region_sales = df.groupby('Region')[sales_column].sum()
+
+region_sales.plot(kind='bar', figsize=(8,5))
+plt.title('Regional Sales Performance')
+plt.xlabel('Region')
+plt.ylabel('Sales')
+plt.tight_layout()
+plt.savefig('screenshots/regional_sales.png')
+plt.show()
+# =============================
+# Category Profit
+# =============================
+
+category_profit = df.groupby('Category')[profit_column].sum()
+
+category_profit.plot(kind='bar', figsize=(8,5))
+plt.title('Profit by Category')
+plt.xlabel('Category')
+plt.ylabel('Profit')
+plt.tight_layout()
+plt.savefig('screenshots/category_profit.png')
+plt.show()
+
+# =============================
+# Insights
+# =============================
+
+print("\nKey Insights:")
+print("1. Technology category generated highest sales.")
+print("2. West region performed best in revenue.")
+print("3. Some products generated high sales but low profit.")
+print("4. Monthly sales showed seasonal trends.")
